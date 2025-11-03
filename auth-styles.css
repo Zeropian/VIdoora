@@ -126,3 +126,21 @@ h2 {
 .footer-text a:hover {
   text-decoration: underline;
 }
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-color);
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.error-message {
+  color: #ff3b30;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
