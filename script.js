@@ -86,17 +86,17 @@ sidebarToggle?.addEventListener('click', () => {
 });
 
 // ===== AUTHENTICATION STATE MANAGEMENT =====
-function updateAuthUI() {
-  const isAuthenticated = localStorage.getItem('userAuthenticated') === 'true';
-  const userEmail = localStorage.getItem('userEmail');
-  const userName = localStorage.getItem('userName');
+async function updateAuthUI() {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  
   const headerRight = document.querySelector('.header-right');
   
   if (!headerRight) return;
   
-  if (isAuthenticated && userEmail) {
+  if (token && user.email) {
     // User is authenticated - show user menu
-    const firstLetter = (userName || userEmail).charAt(0).toUpperCase();
+    const firstLetter = (user.name || user.email).charAt(0).toUpperCase();
     
     // Remove sign in/up buttons if they exist
     const signInBtn = headerRight.querySelector('a[href="signin.html"]');
@@ -123,8 +123,8 @@ function updateAuthUI() {
             <span>${firstLetter}</span>
           </div>
           <div class="user-details">
-            <div class="user-name">${userName || 'User'}</div>
-            <div class="user-email">${userEmail}</div>
+            <div class="user-name">${user.name || 'User'}</div>
+            <div class="user-email">${user.email}</div>
           </div>
         </div>
         <div class="dropdown-divider"></div>
@@ -132,10 +132,23 @@ function updateAuthUI() {
           <i class="fas fa-user"></i>
           Your Channel
         </a>
+        <a href="upload.html" class="dropdown-item">
+          <i class="fas fa-upload"></i>
+          Upload Video
+        </a>
         <a href="#" class="dropdown-item">
           <i class="fas fa-play-circle"></i>
           Your Videos
         </a>
+        <a href="watch-history.html" class="dropdown-item">
+          <i class="fas fa-history"></i>
+          Watch History
+        </a>
+        <a href="liked-videos.html" class="dropdown-item">
+          <i class="fas fa-thumbs-up"></i>
+          Liked Videos
+        </a>
+        <div class="dropdown-divider"></div>
         <a href="#" class="dropdown-item">
           <i class="fas fa-cog"></i>
           Settings
@@ -167,12 +180,24 @@ function updateAuthUI() {
       }
     });
     
-    // Logout functionality
+    // Logout functionality - UPDATED FOR API
     logoutBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      
+      // Use API service if available, otherwise fallback to localStorage
+      if (window.apiService && typeof window.apiService.clearToken === 'function') {
+        window.apiService.clearToken();
+      } else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+      
+      // Clear all auth-related data
       localStorage.removeItem('userAuthenticated');
       localStorage.removeItem('userEmail');
       localStorage.removeItem('userName');
+      
+      // Redirect to home page
       window.location.href = 'index.html';
     });
     
@@ -209,14 +234,16 @@ function updateAuthUI() {
 }
 
 // ===== HOME PAGE CONTENT MANAGEMENT =====
-function updateHomeContent() {
-  const isAuthenticated = localStorage.getItem('userAuthenticated') === 'true';
+async function updateHomeContent() {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  
   const welcomeSection = document.querySelector('.welcome-section');
   const welcomeActions = document.querySelector('.welcome-actions');
   const emptyVideoGrid = document.querySelector('.empty-video-grid');
   const createBtn = document.getElementById('create-btn');
   
-  if (isAuthenticated) {
+  if (token && user.email) {
     // User is authenticated
     if (welcomeActions) {
       welcomeActions.style.display = 'none';
@@ -227,8 +254,8 @@ function updateHomeContent() {
       createBtn.href = 'upload.html';
     }
     
-    // Load videos if available
-    loadVideos();
+    // Load videos from API
+    await loadVideos();
   } else {
     // User is not authenticated
     if (welcomeActions) {
@@ -239,45 +266,82 @@ function updateHomeContent() {
     if (createBtn) {
       createBtn.href = 'signin.html?redirect=upload';
     }
-  }
-}
-
-// Load videos for authenticated users
-function loadVideos() {
-  const emptyVideoGrid = document.querySelector('.empty-video-grid');
-  const emptyState = document.querySelector('.empty-state');
-  const videosGrid = document.querySelector('.videos-grid');
-  
-  // Check if there are any videos in localStorage
-  const savedVideos = localStorage.getItem('vidora-videos');
-  const videos = savedVideos ? JSON.parse(savedVideos) : [];
-  
-  if (videos.length > 0) {
-    // Hide empty state and show videos grid
-    if (emptyVideoGrid) {
-      emptyVideoGrid.style.display = 'none';
-    }
-    if (videosGrid) {
-      videosGrid.style.display = 'grid';
-      // Render videos here
-      renderVideos(videos);
-    }
-  } else {
-    // No videos - show empty state with upload button
+    
+    // Show empty video grid for non-authenticated users
+    const emptyVideoGrid = document.querySelector('.empty-video-grid');
+    const videosGrid = document.querySelector('.videos-grid');
+    
     if (emptyVideoGrid) {
       emptyVideoGrid.style.display = 'block';
     }
     if (videosGrid) {
       videosGrid.style.display = 'none';
     }
-    if (emptyState) {
-      const uploadBtn = emptyState.querySelector('.btn');
-      if (uploadBtn) {
-        uploadBtn.innerHTML = '<i class="fas fa-plus"></i> Upload Your First Video';
-        uploadBtn.onclick = () => {
-          window.location.href = 'upload.html';
-        };
+  }
+}
+
+// Load videos for authenticated users from API
+async function loadVideos() {
+  const emptyVideoGrid = document.querySelector('.empty-video-grid');
+  const emptyState = document.querySelector('.empty-state');
+  const videosGrid = document.querySelector('.videos-grid');
+  
+  try {
+    // Use API service to fetch videos
+    let videos = [];
+    
+    if (window.apiService && typeof window.apiService.getVideos === 'function') {
+      videos = await window.apiService.getVideos();
+    } else {
+      // Fallback: try direct fetch
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${window.APP_CONFIG?.apiBaseUrl || '/api'}/videos`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        videos = await response.json();
       }
+    }
+    
+    if (videos.length > 0) {
+      // Hide empty state and show videos grid
+      if (emptyVideoGrid) {
+        emptyVideoGrid.style.display = 'none';
+      }
+      if (videosGrid) {
+        videosGrid.style.display = 'grid';
+        renderVideos(videos);
+      }
+    } else {
+      // No videos - show empty state with upload button
+      if (emptyVideoGrid) {
+        emptyVideoGrid.style.display = 'block';
+      }
+      if (videosGrid) {
+        videosGrid.style.display = 'none';
+      }
+      if (emptyState) {
+        const uploadBtn = emptyState.querySelector('.btn');
+        if (uploadBtn) {
+          uploadBtn.innerHTML = '<i class="fas fa-plus"></i> Upload Your First Video';
+          uploadBtn.onclick = () => {
+            window.location.href = 'upload.html';
+          };
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error loading videos:', error);
+    
+    // Show empty state on error
+    if (emptyVideoGrid) {
+      emptyVideoGrid.style.display = 'block';
+    }
+    if (videosGrid) {
+      videosGrid.style.display = 'none';
     }
   }
 }
@@ -294,28 +358,53 @@ function renderVideos(videos) {
     videoCard.className = 'video-card';
     videoCard.innerHTML = `
       <div class="video-thumbnail">
-        <img src="${video.thumbnail}" alt="${video.title}" />
-        <span class="video-duration">${video.duration}</span>
+        <img src="${video.thumbnail_url || 'https://via.placeholder.com/320x180/ff3b30/ffffff?text=No+Thumbnail'}" alt="${video.title}" />
+        <span class="video-duration">${video.duration || '10:00'}</span>
       </div>
       <div class="video-info">
-        <div class="video-channel-avatar">${video.channelAvatar}</div>
+        <div class="video-channel-avatar">${video.users?.name?.charAt(0) || 'U'}</div>
         <div class="video-details">
           <h3 class="video-title">${video.title}</h3>
-          <p class="video-channel-name">${video.channel}</p>
-          <p class="video-meta">${video.views} • ${video.timestamp}</p>
+          <p class="video-channel-name">${video.users?.name || 'Unknown Channel'}</p>
+          <p class="video-meta">${video.views || 0} views • ${formatTimeAgo(video.created_at)}</p>
         </div>
       </div>
     `;
+    
+    // Add click event to play video
+    videoCard.addEventListener('click', () => {
+      // In real implementation: window.location.href = `watch.html?v=${video.id}`;
+      alert(`Playing: ${video.title}`);
+    });
     
     videosGrid.appendChild(videoCard);
   });
 }
 
-// Initialize authentication UI and home content on page load
-document.addEventListener('DOMContentLoaded', function() {
-  updateAuthUI();
-  updateHomeContent();
-});
+// Format time ago for video timestamps
+function formatTimeAgo(dateString) {
+  if (!dateString) return 'Recently';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 1) {
+    return '1 day ago';
+  } else if (diffDays < 7) {
+    return `${diffDays} days ago`;
+  } else if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7);
+    return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+  } else if (diffDays < 365) {
+    const months = Math.floor(diffDays / 30);
+    return `${months} month${months > 1 ? 's' : ''} ago`;
+  } else {
+    const years = Math.floor(diffDays / 365);
+    return `${years} year${years > 1 ? 's' : ''} ago`;
+  }
+}
 
 // ===== SEARCH FUNCTIONALITY =====
 const searchInput = document.querySelector('.search-input');
@@ -340,11 +429,95 @@ if (searchInput && searchBtn) {
   function performSearch() {
     const query = searchInput.value.trim();
     if (query) {
+      // For now, just show alert. In future, implement search API
       alert(`Searching for: ${query}`);
-      // Future implementation: Redirect to search results
+      // Future implementation: 
       // window.location.href = `search.html?q=${encodeURIComponent(query)}`;
     } else {
       searchInput.focus();
     }
   }
+}
+
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize authentication UI
+  updateAuthUI();
+  updateHomeContent();
+  
+  // Check if user needs to be redirected based on authentication
+  const token = localStorage.getItem('token');
+  const currentPage = window.location.pathname;
+  
+  // Redirect logic for protected pages
+  if (!token) {
+    const protectedPages = ['upload.html', 'watch-history.html', 'liked-videos.html'];
+    const isProtectedPage = protectedPages.some(page => currentPage.includes(page));
+    
+    if (isProtectedPage) {
+      window.location.href = `signin.html?redirect=${currentPage.split('.')[0]}`;
+      return;
+    }
+  }
+  
+  // Display user info in sidebar if available
+  const userEmail = localStorage.getItem('userEmail');
+  const userFromStorage = JSON.parse(localStorage.getItem('user') || '{}');
+  const userAvatar = document.getElementById('user-avatar');
+  
+  if ((userEmail || userFromStorage.email) && userAvatar) {
+    const firstLetter = (userFromStorage.name || userEmail).charAt(0).toUpperCase();
+    userAvatar.innerHTML = `<span>${firstLetter}</span>`;
+  }
+});
+
+// ===== GLOBAL FUNCTIONS FOR OTHER PAGES =====
+
+// Function to check authentication on other pages
+window.checkAuthentication = function() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    const currentPage = window.location.pathname.split('/').pop();
+    window.location.href = `signin.html?redirect=${currentPage.split('.')[0]}`;
+    return false;
+  }
+  return true;
+};
+
+// Function to get current user info
+window.getCurrentUser = function() {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const token = localStorage.getItem('token');
+  
+  return {
+    ...user,
+    token
+  };
+};
+
+// Function to handle API errors
+window.handleApiError = function(error) {
+  console.error('API Error:', error);
+  
+  if (error.message === 'Session expired' || error.message.includes('token')) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'signin.html';
+    return;
+  }
+  
+  // Show error to user (you can customize this)
+  alert(`Error: ${error.message}`);
+};
+
+// Export for module usage (if needed)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    updateAuthUI,
+    updateHomeContent,
+    loadVideos,
+    checkAuthentication: window.checkAuthentication,
+    getCurrentUser: window.getCurrentUser,
+    handleApiError: window.handleApiError
+  };
 }
