@@ -5,11 +5,11 @@ const environments = {
     debug: true
   },
   production: {
-    apiBaseUrl: 'vidoorabackend-761y03btm-dr-ks-projects.vercel.app',
+    apiBaseUrl: 'https://vidoorabackend-git-main-dr-ks-projects.vercel.app/',
     debug: false
   },
   staging: {
-    apiBaseUrl: 'vidoorabackend-git-main-dr-ks-projects.vercel.app',
+    apiBaseUrl: 'https://vercel.com/login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Fvidoorabackend-git-main-dr-ks-projects.vercel.app%252F%26nonce%3Dfd10087febf83a6f712e8b0d9cd59102a119fe2bc0dca032cf071c66f839da42',
     debug: true
   }
 };
