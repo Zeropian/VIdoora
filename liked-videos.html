@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Liked Videos - Vidora</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="liked-videos-styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <!-- Top Header Bar -->
+  <header class="top-header">
+    <button class="hamburger" id="hamburger">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <a href="index.html" class="logo">Vidora</a>
+
+    <div class="search-container">
+      <input type="text" placeholder="Search videos..." class="search-input" />
+      <button class="search-btn">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <div class="header-right">
+      <a href="upload.html" class="btn btn-create">
+        <i class="fas fa-plus"></i>
+        <span>Create</span>
+      </a>
+
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+
+      <div class="user-menu">
+        <button class="user-avatar" id="user-avatar">
+          <i class="fas fa-user"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Desktop Sidebar Navigation -->
+  <nav class="desktop-sidebar" id="desktop-sidebar">
+    <div class="sidebar-content">
+      <!-- Main Navigation -->
+      <div class="nav-section">
+        <a href="index.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span class="nav-text">Home</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-fire"></i>
+          <span class="nav-text">Trending</span>
+        </a>
+        <a href="subscriptions.html" class="nav-item">
+          <i class="fas fa-play-circle"></i>
+          <span class="nav-text">Subscriptions</span>
+        </a>
+      </div>
+
+      <!-- Library Section -->
+      <div class="nav-section">
+        <div class="section-label">LIBRARY</div>
+        <a href="watch-history.html" class="nav-item">
+          <i class="fas fa-history"></i>
+          <span class="nav-text">History</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-clock"></i>
+          <span class="nav-text">Watch Later</span>
+        </a>
+        <a href="liked-videos.html" class="nav-item active">
+          <i class="fas fa-thumbs-up"></i>
+          <span class="nav-text">Liked Videos</span>
+        </a>
+      </div>
+
+      <!-- Subscriptions Section -->
+      <div class="nav-section">
+        <div class="section-label">SUBSCRIPTIONS</div>
+        <div id="sidebar-subscriptions">
+          <!-- Subscribed channels will appear here -->
+        </div>
+      </div>
+
+      <!-- Explore Section -->
+      <div class="nav-section">
+        <div class="section-label">EXPLORE</div>
+        <a href="#" class="nav-item">
+          <i class="fas fa-music"></i>
+          <span class="nav-text">Music</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-basketball-ball"></i>
+          <span class="nav-text">Sports</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-gamepad"></i>
+          <span class="nav-text">Gaming</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Collapse/Expand Toggle -->
+    <button class="sidebar-toggle" id="sidebar-toggle">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+  </nav>
+
+  <!-- Mobile Sidebar Navigation Drawer -->
+  <div class="mobile-sidebar" id="mobile-sidebar">
+    <div class="sidebar-header">
+      <button class="close-btn" id="close-sidebar">
+        <i class="fas fa-times"></i>
+      </button>
+      <a href="index.html" class="logo">Vidora</a>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="#"><i class="fas fa-fire"></i> Trending</a></li>
+      <li><a href="subscriptions.html"><i class="fas fa-play-circle"></i> Subscriptions</a></li>
+      <li><a href="watch-history.html"><i class="fas fa-history"></i> History</a></li>
+      <li><a href="#"><i class="fas fa-clock"></i> Watch Later</a></li>
+      <li><a href="liked-videos.html" class="active"><i class="fas fa-thumbs-up"></i> Liked Videos</a></li>
+      <li><a href="upload.html"><i class="fas fa-upload"></i> Upload Video</a></li>
+    </ul>
+  </div>
+
+  <!-- Overlay for closing mobile sidebar -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+    <div class="content-wrapper">
+      <!-- Liked Videos Header -->
+      <div class="liked-header">
+        <div class="liked-title-section">
+          <div class="liked-icon">
+            <i class="fas fa-thumbs-up"></i>
+          </div>
+          <div class="liked-title">
+            <h1>Liked videos</h1>
+            <p>Videos you've liked will appear here</p>
+          </div>
+        </div>
+        <div class="liked-actions">
+          <button class="btn btn-outline" id="clear-liked">
+            <i class="fas fa-trash"></i>
+            Clear all liked videos
+          </button>
+          <button class="btn btn-outline" id="create-playlist">
+            <i class="fas fa-plus"></i>
+            Create playlist
+          </button>
+        </div>
+      </div>
+
+      <!-- Liked Videos Controls -->
+      <div class="liked-controls">
+        <div class="search-liked">
+          <div class="search-liked-input">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search liked videos" id="liked-search">
+          </div>
+        </div>
+        <div class="liked-filters">
+          <button class="filter-btn active" data-filter="all">All videos</button>
+          <button class="filter-btn" data-filter="today">Today</button>
+          <button class="filter-btn" data-filter="week">This week</button>
+          <button class="filter-btn" data-filter="month">This month</button>
+          <button class="filter-btn" data-filter="year">This year</button>
+        </div>
+      </div>
+
+      <!-- Sort Options -->
+      <div class="sort-options">
+        <span>Sort by:</span>
+        <select id="sort-by">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="popular">Most popular</option>
+        </select>
+      </div>
+
+      <!-- Liked Videos Grid -->
+      <div class="liked-grid" id="liked-grid">
+        <!-- Liked videos will be populated here -->
+      </div>
+
+      <!-- Load More Button -->
+      <div class="load-more-container" id="load-more-container">
+        <button class="btn btn-outline" id="load-more-btn">
+          <i class="fas fa-redo"></i>
+          Load more videos
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-thumbs-up"></i>
+        </div>
+        <h2>No liked videos yet</h2>
+        <p>Videos you like will appear here</p>
+        <button class="btn btn-primary" onclick="window.location.href='index.html'">
+          Explore Videos
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script src="liked-videos-script.js"></script>
+</body>
+</html>

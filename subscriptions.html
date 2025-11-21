@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Subscriptions - Vidora</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* Subscriptions Page Specific Styles */
+    .subscriptions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .subscriptions-title-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .subscriptions-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .subscriptions-title h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subscriptions-title p {
+      color: var(--text-color);
+      opacity: 0.7;
+    }
+
+    .subscriptions-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 1.5rem;
+    }
+
+    .search-subscriptions {
+      flex: 1;
+      min-width: 300px;
+      max-width: 400px;
+    }
+
+    .search-subscriptions-input {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-subscriptions-input i {
+      position: absolute;
+      left: 12px;
+      color: var(--text-color);
+      opacity: 0.6;
+    }
+
+    .search-subscriptions-input input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      background: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.95rem;
+    }
+
+    .search-subscriptions-input input:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: -1px;
+    }
+
+    .subscriptions-filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex: 1;
+      max-width: 500px;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--text-color);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+      background: var(--border-color);
+    }
+
+    .filter-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    /* Channel Grid */
+    .channels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .channel-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      text-align: center;
+      padding: 1.5rem 1rem;
+    }
+
+    .channel-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .channel-avatar-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.5rem;
+      margin: 0 auto 1rem;
+    }
+
+    .channel-name {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .channel-subscribers {
+      font-size: 0.85rem;
+      color: var(--text-color);
+      opacity: 0.7;
+      margin-bottom: 1rem;
+    }
+
+    .channel-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .btn-subscribed {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-unsubscribe {
+      background: transparent;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-unsubscribe:hover {
+      background: rgba(255, 59, 48, 0.1);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    /* Videos Grid for Subscriptions */
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .video-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .video-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .video-thumbnail {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+    }
+
+    .video-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-duration {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .video-info {
+      display: flex;
+      padding: 1rem;
+      gap: 0.75rem;
+    }
+
+    .video-channel-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .video-details {
+      flex: 1;
+    }
+
+    .video-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      display: -webkit-box;
+      -webkit-line-amp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+      font-size: 0.95rem;
+    }
+
+    .video-channel-name {
+      font-size: 0.9rem;
+      color: var(--text-color);
+      opacity: 0.7;
+      margin-bottom: 0.25rem;
+    }
+
+    .video-meta {
+      font-size: 0.8rem;
+      color: var(--text-color);
+      opacity: 0.6;
+    }
+
+    /* View Toggle */
+    .view-toggle {
+      display: flex;
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 0.25rem;
+      border: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+      width: fit-content;
+    }
+
+    .view-option {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-color);
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .view-option.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.5;
+      color: var(--primary-color);
+    }
+
+    .empty-state h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--text-color);
+    }
+
+    .empty-state p {
+      font-size: 1.1rem;
+      color: var(--text-color);
+      opacity: 0.7;
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .subscriptions-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
+
+      .subscriptions-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+      }
+
+      .search-subscriptions {
+        min-width: 100%;
+        max-width: 100%;
+      }
+
+      .subscriptions-filters {
+        justify-content: flex-start;
+        max-width: 100%;
+      }
+
+      .channels-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .videos-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .subscriptions-filters {
+        justify-content: space-between;
+      }
+      
+      .filter-btn {
+        flex: 1;
+        text-align: center;
+        min-width: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Header Bar -->
+  <header class="top-header">
+    <button class="hamburger" id="hamburger">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <a href="index.html" class="logo">Vidora</a>
+
+    <div class="search-container">
+      <input type="text" placeholder="Search videos..." class="search-input" />
+      <button class="search-btn">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <div class="header-right">
+      <a href="upload.html" class="btn btn-create">
+        <i class="fas fa-plus"></i>
+        <span>Create</span>
+      </a>
+
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+
+      <div class="user-menu">
+        <button class="user-avatar" id="user-avatar">
+          <i class="fas fa-user"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Desktop Sidebar Navigation -->
+  <nav class="desktop-sidebar" id="desktop-sidebar">
+    <div class="sidebar-content">
+      <!-- Main Navigation -->
+      <div class="nav-section">
+        <a href="index.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span class="nav-text">Home</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-fire"></i>
+          <span class="nav-text">Trending</span>
+        </a>
+        <a href="subscriptions.html" class="nav-item active">
+          <i class="fas fa-play-circle"></i>
+          <span class="nav-text">Subscriptions</span>
+        </a>
+      </div>
+
+      <!-- Library Section -->
+      <div class="nav-section">
+        <div class="section-label">LIBRARY</div>
+        <a href="watch-history.html" class="nav-item">
+          <i class="fas fa-history"></i>
+          <span class="nav-text">History</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-clock"></i>
+          <span class="nav-text">Watch Later</span>
+        </a>
+        <a href="liked-videos.html" class="nav-item">
+          <i class="fas fa-thumbs-up"></i>
+          <span class="nav-text">Liked Videos</span>
+        </a>
+      </div>
+
+      <!-- Subscriptions Section -->
+      <div class="nav-section">
+        <div class="section-label">SUBSCRIPTIONS</div>
+        <div id="sidebar-subscriptions">
+          <!-- Subscribed channels will appear here -->
+        </div>
+      </div>
+
+      <!-- Explore Section -->
+      <div class="nav-section">
+        <div class="section-label">EXPLORE</div>
+        <a href="#" class="nav-item">
+          <i class="fas fa-music"></i>
+          <span class="nav-text">Music</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-basketball-ball"></i>
+          <span class="nav-text">Sports</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-gamepad"></i>
+          <span class="nav-text">Gaming</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Collapse/Expand Toggle -->
+    <button class="sidebar-toggle" id="sidebar-toggle">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+  </nav>
+
+  <!-- Mobile Sidebar Navigation Drawer -->
+  <div class="mobile-sidebar" id="mobile-sidebar">
+    <div class="sidebar-header">
+      <button class="close-btn" id="close-sidebar">
+        <i class="fas fa-times"></i>
+      </button>
+      <a href="index.html" class="logo">Vidora</a>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="#"><i class="fas fa-fire"></i> Trending</a></li>
+      <li><a href="subscriptions.html" class="active"><i class="fas fa-play-circle"></i> Subscriptions</a></li>
+      <li><a href="watch-history.html"><i class="fas fa-history"></i> History</a></li>
+      <li><a href="#"><i class="fas fa-clock"></i> Watch Later</a></li>
+      <li><a href="liked-videos.html"><i class="fas fa-thumbs-up"></i> Liked Videos</a></li>
+      <li><a href="upload.html"><i class="fas fa-upload"></i> Upload Video</a></li>
+    </ul>
+  </div>
+
+  <!-- Overlay for closing mobile sidebar -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+    <div class="content-wrapper">
+      <!-- Subscriptions Header -->
+      <div class="subscriptions-header">
+        <div class="subscriptions-title-section">
+          <div class="subscriptions-icon">
+            <i class="fas fa-play-circle"></i>
+          </div>
+          <div class="subscriptions-title">
+            <h1>Subscriptions</h1>
+            <p>Channels you're subscribed to and their latest videos</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscriptions Controls -->
+      <div class="subscriptions-controls">
+        <div class="search-subscriptions">
+          <div class="search-subscriptions-input">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search subscriptions..." id="subscriptions-search">
+          </div>
+        </div>
+        <div class="subscriptions-filters">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="today">Today</button>
+          <button class="filter-btn" data-filter="week">This week</button>
+          <button class="filter-btn" data-filter="month">This month</button>
+        </div>
+      </div>
+
+      <!-- View Toggle -->
+      <div class="view-toggle">
+        <button class="view-option active" data-view="videos">
+          <i class="fas fa-list"></i>
+          Latest Videos
+        </button>
+        <button class="view-option" data-view="channels">
+          <i class="fas fa-users"></i>
+          Channels
+        </button>
+      </div>
+
+      <!-- Videos View -->
+      <div class="videos-view" id="videos-view">
+        <div class="videos-grid" id="videos-grid">
+          <!-- Videos from subscribed channels will appear here -->
+        </div>
+      </div>
+
+      <!-- Channels View -->
+      <div class="channels-view" id="channels-view" style="display: none;">
+        <div class="channels-grid" id="channels-grid">
+          <!-- Subscribed channels will appear here -->
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h2>No subscriptions yet</h2>
+        <p>Channels you subscribe to will appear here with their latest videos</p>
+        <button class="btn btn-primary" onclick="window.location.href='index.html'">
+          Explore Channels
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ===== THEME TOGGLE =====
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlRoot = document.getElementById('html-root');
+
+    // Check saved theme or OS preference
+    const savedTheme = localStorage.getItem('vidora-theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      htmlRoot.setAttribute('data-theme', 'dark');
+      themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    } else {
+      htmlRoot.setAttribute('data-theme', 'light');
+      themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlRoot.getAttribute('data-theme');
+      if (currentTheme === 'dark') {
+        htmlRoot.setAttribute('data-theme', 'light');
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        localStorage.setItem('vidora-theme', 'light');
+      } else {
+        htmlRoot.setAttribute('data-theme', 'dark');
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        localStorage.setItem('vidora-theme', 'dark');
+      }
+    });
+
+    // ===== SIDEBAR TOGGLE =====
+    const hamburger = document.getElementById('hamburger');
+    const mobileSidebar = document.getElementById('mobile-sidebar');
+    const closeBtn = document.getElementById('close-sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function openMobileSidebar() {
+      mobileSidebar.classList.add('active');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSidebar() {
+      mobileSidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', openMobileSidebar);
+    closeBtn.addEventListener('click', closeMobileSidebar);
+    overlay.addEventListener('click', closeMobileSidebar);
+
+    // Close mobile sidebar on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileSidebar.classList.contains('active')) {
+        closeMobileSidebar();
+      }
+    });
+
+    // ===== DESKTOP SIDEBAR EXPAND/COLLAPSE =====
+    const desktopSidebar = document.getElementById('desktop-sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+
+    // Check saved sidebar state
+    const savedSidebarState = localStorage.getItem('vidora-sidebar-expanded');
+
+    if (savedSidebarState === 'true') {
+      desktopSidebar.classList.add('expanded');
+      document.body.classList.add('sidebar-expanded');
+    } else {
+      desktopSidebar.classList.remove('expanded');
+      document.body.classList.remove('sidebar-expanded');
+    }
+
+    sidebarToggle.addEventListener('click', () => {
+      const isExpanded = desktopSidebar.classList.contains('expanded');
+      
+      if (isExpanded) {
+        desktopSidebar.classList.remove('expanded');
+        document.body.classList.remove('sidebar-expanded');
+        localStorage.setItem('vidora-sidebar-expanded', 'false');
+      } else {
+        desktopSidebar.classList.add('expanded');
+        document.body.classList.add('sidebar-expanded');
+        localStorage.setItem('vidora-sidebar-expanded', 'true');
+      }
+    });
+
+    // ===== SUBSCRIPTIONS FUNCTIONALITY =====
+    const videosView = document.getElementById('videos-view');
+    const channelsView = document.getElementById('channels-view');
+    const videosGrid = document.getElementById('videos-grid');
+    const channelsGrid = document.getElementById('channels-grid');
+    const emptyState = document.getElementById('empty-state');
+    const subscriptionsSearch = document.getElementById('subscriptions-search');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const viewOptions = document.querySelectorAll('.view-option');
+    const sidebarSubscriptions = document.getElementById('sidebar-subscriptions');
+
+    // Load subscriptions from localStorage
+    function loadSubscriptions() {
+      const savedSubscriptions = localStorage.getItem('vidora-subscriptions');
+      let subscriptions = [];
+      
+      if (savedSubscriptions) {
+        subscriptions = JSON.parse(savedSubscriptions);
+      }
+      
+      if (subscriptions.length === 0) {
+        showEmptyState();
+      } else {
+        hideEmptyState();
+        renderSubscriptions(subscriptions);
+        updateSidebarSubscriptions(subscriptions);
+      }
+    }
+
+    // Render subscriptions in the main view
+    function renderSubscriptions(subscriptions) {
+      // Clear existing content
+      videosGrid.innerHTML = '';
+      channelsGrid.innerHTML = '';
+      
+      // Render channels view
+      subscriptions.forEach(channel => {
+        const channelCard = createChannelCard(channel);
+        channelsGrid.appendChild(channelCard);
+      });
+      
+      // In a real app, we would fetch videos from these channels
+      // For now, we'll just show the channels view
+    }
+
+    // Update sidebar with subscriptions
+    function updateSidebarSubscriptions(subscriptions) {
+      sidebarSubscriptions.innerHTML = '';
+      
+      subscriptions.forEach(channel => {
+        const sidebarItem = document.createElement('a');
+        sidebarItem.href = '#';
+        sidebarItem.className = 'nav-item channel';
+        sidebarItem.innerHTML = `
+          <div class="channel-avatar">${channel.avatar}</div>
+          <span class="nav-text">${channel.name}</span>
+        `;
+        sidebarSubscriptions.appendChild(sidebarItem);
+      });
+    }
+
+    // Create channel card for channels view
+    function createChannelCard(channel) {
+      const channelCard = document.createElement('div');
+      channelCard.className = 'channel-card';
+      channelCard.innerHTML = `
+        <div class="channel-avatar-large">${channel.avatar}</div>
+        <div class="channel-name">${channel.name}</div>
+        <div class="channel-subscribers">${channel.subscribers}</div>
+        <div class="channel-actions">
+          <button class="btn-subscribed">
+            <i class="fas fa-check"></i>
+            Subscribed
+          </button>
+          <button class="btn-unsubscribe" data-id="${channel.id}">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      `;
+      
+      // Add unsubscribe functionality
+      const unsubscribeBtn = channelCard.querySelector('.btn-unsubscribe');
+      unsubscribeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        unsubscribeFromChannel(channel.id);
+      });
+      
+      // Add click event to navigate to channel
+      channelCard.addEventListener('click', () => {
+        // In real implementation: window.location.href = `channel.html?id=${channel.id}`;
+        alert(`Navigating to ${channel.name} channel`);
+      });
+      
+      return channelCard;
+    }
+
+    // Unsubscribe from a channel
+    function unsubscribeFromChannel(channelId) {
+      const savedSubscriptions = localStorage.getItem('vidora-subscriptions');
+      let subscriptions = [];
+      
+      if (savedSubscriptions) {
+        subscriptions = JSON.parse(savedSubscriptions);
+      }
+      
+      const updatedSubscriptions = subscriptions.filter(channel => channel.id !== channelId);
+      localStorage.setItem('vidora-subscriptions', JSON.stringify(updatedSubscriptions));
+      
+      if (updatedSubscriptions.length === 0) {
+        showEmptyState();
+      } else {
+        renderSubscriptions(updatedSubscriptions);
+        updateSidebarSubscriptions(updatedSubscriptions);
+      }
+    }
+
+    // Show empty state
+    function showEmptyState() {
+      videosView.style.display = 'none';
+      channelsView.style.display = 'none';
+      emptyState.style.display = 'block';
+    }
+
+    // Hide empty state
+    function hideEmptyState() {
+      emptyState.style.display = 'none';
+    }
+
+    // View toggle functionality
+    viewOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Remove active class from all options
+        viewOptions.forEach(opt => opt.classList.remove('active'));
+        // Add active class to clicked option
+        option.classList.add('active');
+        
+        const view = option.getAttribute('data-view');
+        
+        if (view === 'videos') {
+          videosView.style.display = 'block';
+          channelsView.style.display = 'none';
+        } else {
+          videosView.style.display = 'none';
+          channelsView.style.display = 'block';
+        }
+      });
+    });
+
+    // Search functionality
+    subscriptionsSearch.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const savedSubscriptions = localStorage.getItem('vidora-subscriptions');
+      const subscriptions = savedSubscriptions ? JSON.parse(savedSubscriptions) : [];
+      
+      if (searchTerm) {
+        const filteredSubscriptions = subscriptions.filter(channel => 
+          channel.name.toLowerCase().includes(searchTerm)
+        );
+        
+        if (filteredSubscriptions.length === 0) {
+          showEmptyState();
+        } else {
+          hideEmptyState();
+          renderSubscriptions(filteredSubscriptions);
+        }
+      } else {
+        if (subscriptions.length === 0) {
+          showEmptyState();
+        } else {
+          hideEmptyState();
+          renderSubscriptions(subscriptions);
+        }
+      }
+    });
+
+    // Filter functionality
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remove active class from all buttons
+        filterBtns.forEach(b => b.classList.remove('active'));
+        // Add active class to clicked button
+        btn.classList.add('active');
+        
+        // In a real app, we would filter videos by date
+        // For now, we'll just reload the subscriptions
+        const savedSubscriptions = localStorage.getItem('vidora-subscriptions');
+        const subscriptions = savedSubscriptions ? JSON.parse(savedSubscriptions) : [];
+        
+        if (subscriptions.length === 0) {
+          showEmptyState();
+        } else {
+          hideEmptyState();
+          renderSubscriptions(subscriptions);
+        }
+      });
+    });
+
+    // Check authentication and initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if user is authenticated
+      const isAuthenticated = localStorage.getItem('userAuthenticated');
+      if (!isAuthenticated || isAuthenticated !== 'true') {
+        // For demo purposes, we'll allow viewing subscriptions without auth
+        // In real implementation: window.location.href = 'signin.html?redirect=subscriptions';
+      }
+      
+      // Display user info if authenticated
+      const userEmail = localStorage.getItem('userEmail');
+      const userAvatar = document.getElementById('user-avatar');
+      if (userEmail && userAvatar) {
+        const firstLetter = userEmail.charAt(0).toUpperCase();
+        userAvatar.innerHTML = `<span>${firstLetter}</span>`;
+      }
+      
+      // Load subscriptions - will be empty by default
+      loadSubscriptions();
+    });
+  </script>
+</body>
+</html>

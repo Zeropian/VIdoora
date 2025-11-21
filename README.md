@@ -1,2 +1,2 @@
-# Vidoora
-this is for Vidora backend
+# VIdoora
+video sharing platform

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Watch History - Vidora</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* Watch History Specific Styles */
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .history-title-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .history-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .history-title h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .history-title p {
+      color: var(--text-color);
+      opacity: 0.7;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .history-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .search-history {
+      flex: 1;
+      min-width: 300px;
+      max-width: 400px;
+    }
+
+    .search-history-input {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-history-input i {
+      position: absolute;
+      left: 12px;
+      color: var(--text-color);
+      opacity: 0.6;
+    }
+
+    .search-history-input input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      background: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.95rem;
+    }
+
+    .search-history-input input:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: -1px;
+    }
+
+    .history-filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex: 1;
+      max-width: 500px;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--text-color);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+      background: var(--border-color);
+    }
+
+    .filter-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .history-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .history-item {
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .history-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .history-thumbnail {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+    }
+
+    .history-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-duration {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .history-menu-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .history-item:hover .history-menu-btn {
+      opacity: 1;
+    }
+
+    .history-info {
+      display: flex;
+      padding: 1rem;
+      gap: 0.75rem;
+    }
+
+    .history-channel-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .history-details {
+      flex: 1;
+    }
+
+    .history-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      display: -webkit-box;
+      -webkit-line-amp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+    }
+
+    .history-channel {
+      font-size: 0.9rem;
+      color: var(--text-color);
+      opacity: 0.7;
+      margin-bottom: 0.25rem;
+    }
+
+    .history-meta {
+      font-size: 0.8rem;
+      color: var(--text-color);
+      opacity: 0.6;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.5;
+      color: var(--primary-color);
+    }
+
+    .empty-state h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--text-color);
+    }
+
+    .empty-state p {
+      font-size: 1.1rem;
+      color: var(--section-color);
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .empty-sidebar-subscriptions {
+      padding: 1rem;
+      text-align: center;
+      color: var(--text-color);
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .history-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .history-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .history-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-history {
+        min-width: 100%;
+        max-width: 100%;
+      }
+
+      .history-filters {
+        justify-content: flex-start;
+        max-width: 100%;
+      }
+
+      .history-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .history-filters {
+        justify-content: space-between;
+      }
+      
+      .filter-btn {
+        flex: 1;
+        text-align: center;
+        min-width: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Header Bar -->
+  <header class="top-header">
+    <button class="hamburger" id="hamburger">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <a href="index.html" class="logo">Vidora</a>
+
+    <div class="search-container">
+      <input type="text" placeholder="Search videos..." class="search-input" />
+      <button class="search-btn">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <div class="header-right">
+      <a href="upload.html" class="btn btn-create">
+        <i class="fas fa-plus"></i>
+        <span>Create</span>
+      </a>
+
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+
+      <div class="user-menu">
+        <button class="user-avatar" id="user-avatar">
+          <i class="fas fa-user"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Desktop Sidebar Navigation -->
+  <nav class="desktop-sidebar" id="desktop-sidebar">
+    <div class="sidebar-content">
+      <!-- Main Navigation -->
+      <div class="nav-section">
+        <a href="index.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span class="nav-text">Home</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-fire"></i>
+          <span class="nav-text">Trending</span>
+        </a>
+        <a href="subscriptions.html" class="nav-item">
+          <i class="fas fa-play-circle"></i>
+          <span class="nav-text">Subscriptions</span>
+        </a>
+      </div>
+
+      <!-- Library Section -->
+      <div class="nav-section">
+        <div class="section-label">LIBRARY</div>
+        <a href="watch-history.html" class="nav-item active">
+          <i class="fas fa-history"></i>
+          <span class="nav-text">History</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-clock"></i>
+          <span class="nav-text">Watch Later</span>
+        </a>
+        <a href="liked-videos.html" class="nav-item">
+          <i class="fas fa-thumbs-up"></i>
+          <span class="nav-text">Liked Videos</span>
+        </a>
+      </div>
+
+      <!-- Subscriptions Section -->
+      <div class="nav-section">
+        <div class="section-label">SUBSCRIPTIONS</div>
+        <div id="sidebar-subscriptions">
+          <!-- Subscribed channels will appear here -->
+        </div>
+      </div>
+
+      <!-- Explore Section -->
+      <div class="nav-section">
+        <div class="section-label">EXPLORE</div>
+        <a href="#" class="nav-item">
+          <i class="fas fa-music"></i>
+          <span class="nav-text">Music</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-basketball-ball"></i>
+          <span class="nav-text">Sports</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-gamepad"></i>
+          <span class="nav-text">Gaming</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Collapse/Expand Toggle -->
+    <button class="sidebar-toggle" id="sidebar-toggle">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+  </nav>
+
+  <!-- Mobile Sidebar Navigation Drawer -->
+  <div class="mobile-sidebar" id="mobile-sidebar">
+    <div class="sidebar-header">
+      <button class="close-btn" id="close-sidebar">
+        <i class="fas fa-times"></i>
+      </button>
+      <a href="index.html" class="logo">Vidora</a>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="#"><i class="fas fa-fire"></i> Trending</a></li>
+      <li><a href="subscriptions.html"><i class="fas fa-play-circle"></i> Subscriptions</a></li>
+      <li><a href="watch-history.html" class="active"><i class="fas fa-history"></i> History</a></li>
+      <li><a href="#"><i class="fas fa-clock"></i> Watch Later</a></li>
+      <li><a href="liked-videos.html"><i class="fas fa-thumbs-up"></i> Liked Videos</a></li>
+      <li><a href="upload.html"><i class="fas fa-upload"></i> Upload Video</a></li>
+    </ul>
+  </div>
+
+  <!-- Overlay for closing mobile sidebar -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+    <div class="content-wrapper">
+      <!-- History Header -->
+      <div class="history-header">
+        <div class="history-title-section">
+          <div class="history-icon">
+            <i class="fas fa-history"></i>
+          </div>
+          <div class="history-title">
+            <h1>Watch history</h1>
+            <p>Videos you've watched will appear here</p>
+          </div>
+        </div>
+        <div class="history-actions">
+          <button class="btn btn-outline" id="clear-history">
+            <i class="fas fa-trash"></i>
+            Clear all watch history
+          </button>
+          <button class="btn btn-outline" id="pause-history">
+            <i class="fas fa-pause"></i>
+            Pause watch history
+          </button>
+        </div>
+      </div>
+
+      <!-- History Controls -->
+      <div class="history-controls">
+        <div class="search-history">
+          <div class="search-history-input">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search watch history" id="history-search">
+          </div>
+        </div>
+        <div class="history-filters">
+          <button class="filter-btn active" data-filter="all">All time</button>
+          <button class="filter-btn" data-filter="today">Today</button>
+          <button class="filter-btn" data-filter="yesterday">Yesterday</button>
+          <button class="filter-btn" data-filter="week">This week</button>
+          <button class="filter-btn" data-filter="month">This month</button>
+        </div>
+      </div>
+
+      <!-- Watch History Grid -->
+      <div class="history-grid" id="history-grid">
+        <!-- History items will be populated here -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-history"></i>
+        </div>
+        <h2>No watch history</h2>
+        <p>Videos you watch will appear here</p>
+        <button class="btn btn-primary" onclick="window.location.href='index.html'">
+          Explore Videos
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ===== THEME TOGGLE =====
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlRoot = document.getElementById('html-root');
+
+    // Check saved theme or OS preference
+    const savedTheme = localStorage.getItem('vidora-theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      htmlRoot.setAttribute('data-theme', 'dark');
+      themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    } else {
+      htmlRoot.setAttribute('data-theme', 'light');
+      themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlRoot.getAttribute('data-theme');
+      if (currentTheme === 'dark') {
+        htmlRoot.setAttribute('data-theme', 'light');
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        localStorage.setItem('vidora-theme', 'light');
+      } else {
+        htmlRoot.setAttribute('data-theme', 'dark');
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        localStorage.setItem('vidora-theme', 'dark');
+      }
+    });
+
+    // ===== SIDEBAR TOGGLE =====
+    const hamburger = document.getElementById('hamburger');
+    const mobileSidebar = document.getElementById('mobile-sidebar');
+    const closeBtn = document.getElementById('close-sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function openMobileSidebar() {
+      mobileSidebar.classList.add('active');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSidebar() {
+      mobileSidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', openMobileSidebar);
+    closeBtn.addEventListener('click', closeMobileSidebar);
+    overlay.addEventListener('click', closeMobileSidebar);
+
+    // Close mobile sidebar on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileSidebar.classList.contains('active')) {
+        closeMobileSidebar();
+      }
+    });
+
+    // ===== DESKTOP SIDEBAR EXPAND/COLLAPSE =====
+    const desktopSidebar = document.getElementById('desktop-sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+
+    // Check saved sidebar state
+    const savedSidebarState = localStorage.getItem('vidora-sidebar-expanded');
+
+    if (savedSidebarState === 'true') {
+      desktopSidebar.classList.add('expanded');
+      document.body.classList.add('sidebar-expanded');
+    } else {
+      desktopSidebar.classList.remove('expanded');
+      document.body.classList.remove('sidebar-expanded');
+    }
+
+    sidebarToggle.addEventListener('click', () => {
+      const isExpanded = desktopSidebar.classList.contains('expanded');
+      
+      if (isExpanded) {
+        desktopSidebar.classList.remove('expanded');
+        document.body.classList.remove('sidebar-expanded');
+        localStorage.setItem('vidora-sidebar-expanded', 'false');
+      } else {
+        desktopSidebar.classList.add('expanded');
+        document.body.classList.add('sidebar-expanded');
+        localStorage.setItem('vidora-sidebar-expanded', 'true');
+      }
+    });
+
+    // ===== WATCH HISTORY FUNCTIONALITY =====
+    const historyGrid = document.getElementById('history-grid');
+    const emptyState = document.getElementById('empty-state');
+    const clearHistoryBtn = document.getElementById('clear-history');
+    const pauseHistoryBtn = document.getElementById('pause-history');
+    const historySearch = document.getElementById('history-search');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const sidebarSubscriptions = document.getElementById('sidebar-subscriptions');
+
+    // Load watch history from localStorage
+    function loadWatchHistory() {
+      // Clear any existing sample data from localStorage
+      localStorage.removeItem('vidora-watch-history');
+      
+      const savedHistory = localStorage.getItem('vidora-watch-history');
+      let history = [];
+      
+      if (savedHistory) {
+        history = JSON.parse(savedHistory);
+      }
+      
+      if (history.length === 0) {
+        showEmptyState();
+      } else {
+        hideEmptyState();
+        // Note: In a real app, we would render the history here
+        // But since we have no data, we'll just keep the empty state
+      }
+    }
+
+    // Load subscriptions for sidebar
+    function loadSidebarSubscriptions() {
+      const savedSubscriptions = localStorage.getItem('vidora-subscriptions');
+      let subscriptions = [];
+      
+      if (savedSubscriptions) {
+        subscriptions = JSON.parse(savedSubscriptions);
+      }
+      
+      if (subscriptions.length === 0) {
+        // Keep the empty state in sidebar
+        sidebarSubscriptions.innerHTML = `
+          <div class="empty-sidebar-subscriptions">
+            <i class="fas fa-users" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+            <p>No subscriptions yet</p>
+          </div>
+        `;
+      } else {
+        // Render subscribed channels in sidebar
+        sidebarSubscriptions.innerHTML = '';
+        subscriptions.forEach(channel => {
+          const channelItem = document.createElement('a');
+          channelItem.href = '#';
+          channelItem.className = 'nav-item channel';
+          channelItem.innerHTML = `
+            <div class="channel-avatar">${channel.avatar}</div>
+            <span class="nav-text">${channel.name}</span>
+          `;
+          sidebarSubscriptions.appendChild(channelItem);
+        });
+      }
+    }
+
+    // Show empty state
+    function showEmptyState() {
+      historyGrid.style.display = 'none';
+      emptyState.style.display = 'block';
+    }
+
+    // Hide empty state
+    function hideEmptyState() {
+      historyGrid.style.display = 'grid';
+      emptyState.style.display = 'none';
+    }
+
+    // Clear all watch history
+    clearHistoryBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all watch history? This action cannot be undone.')) {
+        localStorage.setItem('vidora-watch-history', '[]');
+        historyGrid.innerHTML = '';
+        showEmptyState();
+      }
+    });
+
+    // Pause/Resume watch history
+    let historyPaused = localStorage.getItem('vidora-history-paused') === 'true';
+
+    function updatePauseButton() {
+      if (historyPaused) {
+        pauseHistoryBtn.innerHTML = '<i class="fas fa-play"></i> Resume watch history';
+        pauseHistoryBtn.style.background = 'var(--primary-color)';
+        pauseHistoryBtn.style.color = 'white';
+        pauseHistoryBtn.classList.remove('btn-outline');
+      } else {
+        pauseHistoryBtn.innerHTML = '<i class="fas fa-pause"></i> Pause watch history';
+        pauseHistoryBtn.style.background = '';
+        pauseHistoryBtn.style.color = '';
+        pauseHistoryBtn.classList.add('btn-outline');
+      }
+    }
+
+    pauseHistoryBtn.addEventListener('click', () => {
+      historyPaused = !historyPaused;
+      localStorage.setItem('vidora-history-paused', historyPaused);
+      updatePauseButton();
+      
+      if (historyPaused) {
+        alert('Watch history is now paused. New videos won\'t be added to your history.');
+      } else {
+        alert('Watch history is now resumed. New videos will be added to your history.');
+      }
+    });
+
+    // Search functionality
+    historySearch.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const savedHistory = localStorage.getItem('vidora-watch-history');
+      const history = savedHistory ? JSON.parse(savedHistory) : [];
+      
+      if (searchTerm) {
+        // Since we have no data, we'll just keep the empty state
+        showEmptyState();
+      } else {
+        if (history.length === 0) {
+          showEmptyState();
+        } else {
+          hideEmptyState();
+          // Note: In a real app, we would render the history here
+          // But since we have no data, we'll just keep the empty state
+        }
+      }
+    });
+
+    // Filter functionality
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remove active class from all buttons
+        filterBtns.forEach(b => b.classList.remove('active'));
+        // Add active class to clicked button
+        btn.classList.add('active');
+        
+        // Since we have no data, we'll just ensure the empty state is shown
+        showEmptyState();
+      });
+    });
+
+    // Check authentication and initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if user is authenticated
+      const isAuthenticated = localStorage.getItem('userAuthenticated');
+      if (!isAuthenticated || isAuthenticated !== 'true') {
+        // For demo purposes, we'll allow viewing history without auth
+        // In real implementation: window.location.href = 'signin.html?redirect=watch-history';
+      }
+      
+      // Display user info if authenticated
+      const userEmail = localStorage.getItem('userEmail');
+      const userAvatar = document.getElementById('user-avatar');
+      if (userEmail && userAvatar) {
+        const firstLetter = userEmail.charAt(0).toUpperCase();
+        userAvatar.innerHTML = `<span>${firstLetter}</span>`;
+      }
+      
+      // Load watch history - will be empty
+      loadWatchHistory();
+      
+      // Load subscriptions for sidebar
+      loadSidebarSubscriptions();
+      
+      updatePauseButton();
+    });
+  </script>
+</body>
+</html>
